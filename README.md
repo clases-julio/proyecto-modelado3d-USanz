@@ -6,3 +6,7 @@ Thanks to the [practice 3](https://github.com/clases-julio/p3-pythonscripting-US
 To see more information about how to change these parameters see the practice 3 [README.md](https://github.com/clases-julio/p3-pythonscripting-USanz#readme) file.
 
 
+# Preview
+Here is a render of the model progress until now:
+
+![render_progress_gif](Renders/progress.gif)
