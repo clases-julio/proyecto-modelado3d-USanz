@@ -115,21 +115,21 @@ class Objeto:
 WARNING: YOU SHOULD ONLY CHANGE THE FLOAT VALUES (x.x), DO NOT CHANGE OR DELETE ANY VARIABLE NAME OR INT NUMBER.
 '''
 
-WHEEL_OUTER_PART_RADIUS = 0.7
-WHEEL_OUTER_PART_WIDTH = 0.13
-WHEEL_INNER_PART_RADIUS = 0.5
-WHEEL_INNER_PART_WIDTH = WHEEL_OUTER_PART_WIDTH
+WHEEL_OUTER_PART_RADIUS = 0.75
+WHEEL_OUTER_PART_WIDTH = 0.15
+WHEEL_INNER_PART_RADIUS = 0.45
+WHEEL_INNER_PART_WIDTH = 0.35
 
 WHEEL_RADIUS = WHEEL_OUTER_PART_RADIUS
 WHEEL_WIDTH = WHEEL_OUTER_PART_WIDTH*2 + WHEEL_INNER_PART_WIDTH
-WHEEL_COLOR = (1.0, 0.8, 0.1, 1)
+WHEEL_COLOR = (0.7, 1.0, 0.1, 1.0)
 
-WHEEL_AXIAL_DISTANCE = 2.0 #distance between the wheel centers.
+WHEEL_AXIAL_DISTANCE = 3.5 #distance between the wheel centers.
 WHEEL_AXIS_LENGTH = WHEEL_AXIAL_DISTANCE - WHEEL_WIDTH #distace of the physical axis (substracting the WHEEL_WIDTH).
 WHEEL_AXIS_RADIUS = 0.1
-WHEEL_AXIS_COLOR = (0.1, 0.1, 0.1, 1) #RGB
+WHEEL_AXIS_COLOR = (0.1, 0.1, 0.4, 1.0) #RGB
 
-AXIS_SEPARATION_DISTANCE = 3.0 #distance from one axis to another.
+AXIS_SEPARATION_DISTANCE = 4.0 #distance from one axis to another.
 
 if __name__ == "__main__":
     #resetear escenario:
@@ -139,10 +139,10 @@ if __name__ == "__main__":
     Objeto.crearCilindro('cilindro_exterior_derecho')
     Seleccionado.rotarY(3.14/2)
     Seleccionado.escalar((WHEEL_OUTER_PART_WIDTH, WHEEL_OUTER_PART_RADIUS, WHEEL_OUTER_PART_RADIUS))
-    Seleccionado.mover((WHEEL_OUTER_PART_WIDTH/2 + WHEEL_OUTER_PART_WIDTH/2, 0, 0))
+    Seleccionado.mover((WHEEL_OUTER_PART_WIDTH/2 + WHEEL_INNER_PART_WIDTH/2, 0, 0))
     
     #left outer part of the wheel:
-    Seleccionado.duplicar((-WHEEL_OUTER_PART_WIDTH - WHEEL_OUTER_PART_WIDTH, 0, 0), 'cilindro_exterior_izquierdo')
+    Seleccionado.duplicar((-WHEEL_OUTER_PART_WIDTH - WHEEL_INNER_PART_WIDTH, 0, 0), 'cilindro_exterior_izquierdo')
     
     #inner part of the wheel:
     Objeto.crearCilindro('cilindro_interior')
@@ -171,4 +171,12 @@ if __name__ == "__main__":
     Seleccionado.duplicar((0, AXIS_SEPARATION_DISTANCE, 0), 'eje_y_ruedas_anteriores')
     
 
+
+
+    #lights and camera:
+    bpy.ops.object.light_add(type='SUN', radius=1, location=(0.0, 0.0, 5.0))
+    bpy.ops.object.light_add(type='POINT', location=(4.5, 1.5, 3.7))
+    bpy.ops.object.camera_add(align='VIEW',\
+                              location=(7.0, -7.0, 5.0),\
+                              rotation=(1.06, 0.00771012, 0.765167))
 
