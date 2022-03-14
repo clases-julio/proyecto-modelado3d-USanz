@@ -7,6 +7,14 @@ To see more information about how to change these parameters see the practice 3 
 
 
 # Preview
-Here is a render of the model progress until now:
+Here is a render of the model progress until the following dates:
 
-![render_progress_gif](Renders/progress.gif)
+- 3/12/2022
+
+![render_progress_gif](Renders/axes/axes_progress.gif)
+
+- 3/14/2022
+
+![render_progress_gif](Renders/robot_body/body_progress.gif)
+
+
