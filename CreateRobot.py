@@ -7,6 +7,11 @@ def seleccionarObjeto(nombreObjeto): # Seleccionar un objeto por su nombre
     bpy.ops.object.select_all(action='DESELECT') # deseleccionamos todos...
     bpy.data.objects[nombreObjeto].select_set(True) # ...excepto el buscado
 
+def seleccionarObjetos(nombresObjetos):
+    bpy.ops.object.select_all(action='DESELECT')
+    for nombreObjeto in nombresObjetos:
+        bpy.data.objects[nombreObjeto].select_set(True)
+
 def seleccionarTodos():
     bpy.ops.object.select_all(action='SELECT')
 
@@ -90,15 +95,15 @@ class Especifico:
 '''************************'''
 class Objeto:
     def crearCubo(objName):
-        bpy.ops.mesh.primitive_cube_add(size=0.5, location=(0, 0, 0))
+        bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0, 0))
         Activo.renombrar(objName)
 
     def crearEsfera(objName):
-        bpy.ops.mesh.primitive_uv_sphere_add(radius=0.5, location=(0, 0, 0))
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=1, location=(0, 0, 0))
         Activo.renombrar(objName)
 
     def crearCono(objName):
-        bpy.ops.mesh.primitive_cone_add(radius1=0.5, location=(0, 0, 0))
+        bpy.ops.mesh.primitive_cone_add(radius1=1, location=(0, 0, 0))
         Activo.renombrar(objName)
         
     def crearCilindro(objName):
@@ -131,10 +136,24 @@ WHEEL_AXIS_COLOR = (0.1, 0.1, 0.4, 1.0) #RGB
 
 AXIS_SEPARATION_DISTANCE = 4.0 #distance from one axis to another.
 
-CHASIS_WIDTH = WHEEL_AXIS_LENGTH
-CHASIS_LENGTH = WHEEL_AXIAL_DISTANCE + 1
-CHASIS_HEIGHT = 2
-CHASIS_SIZE = (CHASIS_WIDTH, CHASIS_LENGTH, CHASIS_HEIGHT)
+CHASSIS_WHEEL_SEPARATION = 0.2
+CHASSIS_WIDTH = WHEEL_AXIS_LENGTH - 2*CHASSIS_WHEEL_SEPARATION
+CHASSIS_LENGTH = AXIS_SEPARATION_DISTANCE
+CHASSIS_HEIGHT = 1.0
+CHASSIS_SIZE = (CHASSIS_WIDTH, CHASSIS_LENGTH, CHASSIS_HEIGHT) #its multiplied by 2 because default cube dimensions are (0.5, 0.5, 0.5) so we duplicate to get (1, 1, 1) and then resize
+
+BONNET_WIDTH = CHASSIS_WIDTH - 0.1
+BONNET_LENGTH = 0.8
+BONNET_HEIGHT = CHASSIS_HEIGHT - 0.2
+BONNET_SIZE = (BONNET_WIDTH, BONNET_LENGTH, BONNET_HEIGHT)
+
+TRUNK_WIDTH = CHASSIS_WIDTH
+TRUNK_LENGTH = 0.8
+TRUNK_HEIGHT = CHASSIS_HEIGHT - 0.2
+TRUNK_BORDER_WIDTH = 0.1
+TRUNK_SIZE = (TRUNK_WIDTH, TRUNK_LENGTH, TRUNK_HEIGHT)
+
+BODY_COLOR = (0.0, 0.7, 0.85, 1.0) #RGB
 
 if __name__ == "__main__":
     #resetear escenario:
@@ -175,8 +194,36 @@ if __name__ == "__main__":
     Seleccionado.mover((0, -AXIS_SEPARATION_DISTANCE/2, 0))
     Seleccionado.duplicar((0, AXIS_SEPARATION_DISTANCE, 0), 'eje_y_ruedas_anteriores')
     
-    Objeto.crearCubo('carroceria')
-    #Seleccionado.escalar(CHASIS_SIZE)
+    Objeto.crearCubo('chasis_parte_central')
+    Seleccionado.escalar(CHASSIS_SIZE)
+    Seleccionado.mover((0, 0, CHASSIS_HEIGHT/2))
+    
+    Objeto.crearCubo('capó')
+    Seleccionado.escalar(BONNET_SIZE)
+    Seleccionado.mover((0, CHASSIS_LENGTH/2 + BONNET_LENGTH/2, BONNET_HEIGHT/2))
+    
+    Objeto.crearCubo('maletero_parte_izquierda')
+    Seleccionado.escalar((TRUNK_BORDER_WIDTH, TRUNK_LENGTH, TRUNK_HEIGHT))
+    Seleccionado.mover((-TRUNK_WIDTH/2 + TRUNK_BORDER_WIDTH/2, -CHASSIS_LENGTH/2 - TRUNK_LENGTH/2, BONNET_HEIGHT/2))
+
+    Seleccionado.duplicar((TRUNK_WIDTH - TRUNK_BORDER_WIDTH, 0, 0), 'maletero_parte_derecha')
+
+    Objeto.crearCubo('maletero_parte_inferior')
+    Seleccionado.escalar((TRUNK_WIDTH - TRUNK_BORDER_WIDTH*2, TRUNK_LENGTH, TRUNK_BORDER_WIDTH))
+    Seleccionado.mover((0, -CHASSIS_LENGTH/2 - TRUNK_LENGTH/2, TRUNK_BORDER_WIDTH/2))
+    
+    Seleccionado.duplicar((0, -TRUNK_LENGTH/2 + TRUNK_BORDER_WIDTH/2, TRUNK_LENGTH/2 - TRUNK_BORDER_WIDTH/2), 'maletero_parte_trasera')
+    Seleccionado.rotarX(3.14/2)
+    
+    seleccionarObjetos(['maletero_parte_inferior', 'maletero_parte_derecha', 'maletero_parte_izquierda', 'maletero_parte_trasera'])
+    Seleccionado.unir('maletero')
+    
+    seleccionarObjetos(['capó', 'chasis_parte_central', 'maletero'])
+    Seleccionado.unir('cuerpo_robot')
+    Seleccionado.añadirMaterial(BODY_COLOR, 'BODY')
+    
+
+
 
 
     #lights and camera:
