@@ -124,12 +124,17 @@ WHEEL_RADIUS = WHEEL_OUTER_PART_RADIUS
 WHEEL_WIDTH = WHEEL_OUTER_PART_WIDTH*2 + WHEEL_INNER_PART_WIDTH
 WHEEL_COLOR = (0.7, 1.0, 0.1, 1.0)
 
-WHEEL_AXIAL_DISTANCE = 3.5 #distance between the wheel centers.
+WHEEL_AXIAL_DISTANCE = 3.5 #distance between the 2 wheel centers of the same axis.
 WHEEL_AXIS_LENGTH = WHEEL_AXIAL_DISTANCE - WHEEL_WIDTH #distace of the physical axis (substracting the WHEEL_WIDTH).
 WHEEL_AXIS_RADIUS = 0.1
 WHEEL_AXIS_COLOR = (0.1, 0.1, 0.4, 1.0) #RGB
 
 AXIS_SEPARATION_DISTANCE = 4.0 #distance from one axis to another.
+
+CHASIS_WIDTH = WHEEL_AXIS_LENGTH
+CHASIS_LENGTH = WHEEL_AXIAL_DISTANCE + 1
+CHASIS_HEIGHT = 2
+CHASIS_SIZE = (CHASIS_WIDTH, CHASIS_LENGTH, CHASIS_HEIGHT)
 
 if __name__ == "__main__":
     #resetear escenario:
@@ -170,7 +175,8 @@ if __name__ == "__main__":
     Seleccionado.mover((0, -AXIS_SEPARATION_DISTANCE/2, 0))
     Seleccionado.duplicar((0, AXIS_SEPARATION_DISTANCE, 0), 'eje_y_ruedas_anteriores')
     
-
+    Objeto.crearCubo('carroceria')
+    #Seleccionado.escalar(CHASIS_SIZE)
 
 
     #lights and camera:
