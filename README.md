@@ -10,8 +10,11 @@ To see more information about how to change these parameters see the practice 3 
 
 Here we have a gif that shows the full progress:
 
-![render_progress_gif](Renders/all_together/all_progress.gif)
+![render_progress_gif](Renders/all_together/all_progress_with_details.gif)
 
+We also have a rotational view of the finished model:
+
+![render_progress_gif](Renders/rotational_view/rotational_view_progress.gif)
 
 Here is a render of the model progress by dates:
 
@@ -23,4 +26,6 @@ Here is a render of the model progress by dates:
 
 ![render_progress_gif](Renders/robot_body/body_progress.gif)
 
+- 3/16/2022
 
+![render_progress_gif](Renders/details_and_sensors/details_and_sensors_progress.gif)
