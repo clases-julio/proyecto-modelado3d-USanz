@@ -28,6 +28,16 @@ def borrarObjetos(): # Borrar todos los objetos
         bpy.ops.object.select_all(action='SELECT')
         bpy.ops.object.delete(use_global=False)
 
+def borrarMateriales():
+    for m in bpy.data.materials:
+        bpy.data.materials.remove(m)
+def borrarLuces():
+    for m in bpy.data.lights:
+        bpy.data.lights.remove(m)
+def borrarMallas():
+    for m in bpy.data.meshes:
+        bpy.data.meshes.remove(m)
+
 '''****************************************************************'''
 '''Clase para realizar transformaciones sobre objetos seleccionados'''
 '''****************************************************************'''
@@ -61,6 +71,7 @@ class Seleccionado:
         mat = bpy.data.materials.new(nombreMaterial)
         mat.diffuse_color = color
         bpy.context.selected_objects[0].active_material = mat
+    
 
 '''**********************************************************'''
 '''Clase para realizar transformaciones sobre objetos activos'''
@@ -164,8 +175,9 @@ AERIAL_BASE_SIZE = (AERIAL_BASE_RADIUS, AERIAL_BASE_RADIUS, AERIAL_BASE_HEIGHT)
 AERIAL_BASE_POS = (-CHASSIS_WIDTH/2 + AERIAL_BASE_RADIUS + 0.1, -CHASSIS_LENGTH/2 + AERIAL_BASE_RADIUS + 0.1, CHASSIS_HEIGHT + AERIAL_BASE_HEIGHT/2)
 
 AERIAL_STICK_RADIUS = 0.05
-AERIAL_STICK_HEIGHT = 0.5
+AERIAL_STICK_HEIGHT = 1
 AERIAL_STICK_SIZE = (AERIAL_STICK_RADIUS, AERIAL_STICK_RADIUS, AERIAL_STICK_HEIGHT)
+AERIAL_TIP_RADIUS = 0.05
 AERIAL_STICK_POS = (AERIAL_BASE_POS[0], AERIAL_BASE_POS[1], AERIAL_BASE_POS[2] + AERIAL_BASE_HEIGHT/2 + AERIAL_STICK_HEIGHT)
 AERIAL_COLOR = (0.25, 0.05, 0.85, 1.0)
 
@@ -186,7 +198,7 @@ LASER_BASE_POS = (0, CHASSIS_LENGTH/2 + LASER_BASE_LENGTH/2, CHASSIS_HEIGHT - LA
 LASER_GLASS_POS = (LASER_BASE_POS[0], LASER_BASE_POS[1] + LASER_GLASS_SHIFT_Y, LASER_BASE_POS[2])
 
 
-SENSOR_BASE_COLOR = (0.0, 0.0, 0.0, 1)
+SENSOR_BASE_COLOR = (0.2, 0.2, 0.2, 1.0)
 
 
 US_EMITTER_RECEIVER_RADIUS = 0.1
@@ -208,13 +220,32 @@ US_RECEIVER_COLOR = (1.0, 0.0, 0.0, 1.0)
 US_SENSOR_SIZE = (US_BASE_SIZE[0] + US_EMITTER_RECEIVER_SIZE[0], US_BASE_SIZE[1], US_BASE_SIZE[2])
 
 
+CAMERA_BASE_WIDTH = 0.4
+CAMERA_BASE_LENGTH = 0.4
+CAMERA_BASE_HEIGHT = 0.1
+CAMERA_BASE_SIZE = (CAMERA_BASE_WIDTH, CAMERA_BASE_LENGTH, CAMERA_BASE_HEIGHT)
+CAMERA_BASE_POS = (0.0, CHASSIS_LENGTH/2 - CAMERA_BASE_LENGTH/2 - 0.1, CHASSIS_HEIGHT)
+CAMERA_NECK_RADIUS = 0.1
+CAMERA_NECK_HEIGHT = 0.2
+CAMERA_NECK_SIZE = (CAMERA_NECK_RADIUS, CAMERA_NECK_RADIUS, CAMERA_NECK_HEIGHT)
+CAMERA_NECK_POS = (CAMERA_BASE_POS[0], CAMERA_BASE_POS[1], CAMERA_BASE_POS[2] + CAMERA_NECK_HEIGHT/2 + CAMERA_BASE_HEIGHT/2)
+CAMERA_BODY_WIDTH = 0.3
+CAMERA_BODY_LENGTH = 0.6
+CAMERA_BODY_HEIGHT = 0.3
+CAMERA_BODY_SIZE = (CAMERA_BODY_WIDTH, CAMERA_BODY_LENGTH, CAMERA_BODY_HEIGHT)
+CAMERA_BODY_Y_SHIFT = 0.1
+CAMERA_BODY_POS = (CAMERA_NECK_POS[0], CAMERA_NECK_POS[1] + CAMERA_BODY_Y_SHIFT, CAMERA_NECK_POS[2] + CAMERA_NECK_HEIGHT/2 + CAMERA_BODY_HEIGHT/2)
+CAMERA_LENS_WIDTH = 0.12
+CAMERA_LENS_LENGTH = 0.05
+CAMERA_LENS_HEIGHT = 0.12
+CAMERA_LENS_SIZE = (CAMERA_LENS_WIDTH, CAMERA_LENS_LENGTH, CAMERA_LENS_HEIGHT)
+CAMERA_LENS_POS = (CAMERA_BODY_POS[0], CAMERA_BODY_POS[1] + CAMERA_BODY_LENGTH/2, CAMERA_BODY_POS[2])
+CAMERA_LENS_COLOR = (0.0, 0.3, 0.5, 0.6)
+
 
 PI = pi #from math.pi
 
-if __name__ == "__main__":
-    #resetear escenario:
-    borrarObjetos()
-    
+def create_axis(obj_pos, obj_name):
     #right outer part of the wheel:
     Objeto.crearCilindro('cilindro_exterior_derecho')
     Seleccionado.rotarY(PI/2.0)
@@ -230,33 +261,33 @@ if __name__ == "__main__":
     Seleccionado.escalar((WHEEL_INNER_PART_WIDTH, WHEEL_INNER_PART_RADIUS, WHEEL_INNER_PART_RADIUS))
     
     #joinning the different parts of the wheel:
-    seleccionarTodos()
-    Seleccionado.unir('rueda_posterior_derecha')
+    seleccionarObjetos(['cilindro_exterior_derecho', 'cilindro_exterior_izquierdo', 'cilindro_interior'])
+    Seleccionado.unir('rueda_derecha')
     Seleccionado.añadirMaterial(WHEEL_COLOR, 'WHEEL')
     
     #duplicating and translating the wheels:
     Seleccionado.mover((WHEEL_AXIAL_DISTANCE/2, 0, 0))
-    Seleccionado.duplicar((-WHEEL_AXIAL_DISTANCE, 0, 0), 'rueda_posterior_izquierda')
+    Seleccionado.duplicar((-WHEEL_AXIAL_DISTANCE, 0, 0), 'rueda_izquierda')
     
     #creating the axis:
-    Objeto.crearCilindro('eje_posterior')
+    Objeto.crearCilindro('eje')
     Seleccionado.rotarY(PI/2.0)
     Seleccionado.escalar((WHEEL_AXIS_LENGTH, WHEEL_AXIS_RADIUS, WHEEL_AXIS_RADIUS))
     Seleccionado.añadirMaterial(WHEEL_AXIS_COLOR, 'AXIS')
     
-    #joinning the axis with the 2 wheels and duplicating it:
-    seleccionarTodos()
-    Seleccionado.unir('eje_y_ruedas_posteriores')
-    Seleccionado.mover((0, -AXIS_SEPARATION_DISTANCE/2, 0))
-    Seleccionado.duplicar((0, AXIS_SEPARATION_DISTANCE, 0), 'eje_y_ruedas_anteriores')
-    
+    #joinning the axis with the wheels: 
+    seleccionarObjetos(['rueda_derecha', 'rueda_izquierda', 'eje'])
+    Seleccionado.unir(obj_name)
+    Seleccionado.mover(obj_pos)
+
+def create_body(obj_pos, obj_name):
     #creating the central part of the chsassis:
     Objeto.crearCubo('chasis_parte_central')
     Seleccionado.escalar(CHASSIS_SIZE)
     Seleccionado.mover((0, 0, CHASSIS_HEIGHT/2))
     
     #creating the bannet:
-    Objeto.crearCubo('capó')
+    Objeto.crearCubo('capo')
     Seleccionado.escalar(BONNET_SIZE)
     Seleccionado.mover((0, CHASSIS_LENGTH/2 + BONNET_LENGTH/2, BONNET_HEIGHT/2))
     
@@ -275,97 +306,127 @@ if __name__ == "__main__":
     Seleccionado.escalar((TRUNK_WIDTH - TRUNK_BORDER_WIDTH*2, TRUNK_BORDER_WIDTH, TRUNK_HEIGHT))
     Seleccionado.mover((0, -CHASSIS_LENGTH/2 - TRUNK_LENGTH + TRUNK_BORDER_WIDTH/2, TRUNK_HEIGHT/2))
 
-    #joinning the parts of the trunk together:    
+    #joinning the parts of the trunk together:
     seleccionarObjetos(['maletero_parte_inferior', 'maletero_parte_derecha', 'maletero_parte_izquierda', 'maletero_parte_posterior'])
     Seleccionado.unir('maletero')
     
     #joinning the chassis, the bannet and the trunk as the robot body:
-    seleccionarObjetos(['capó', 'chasis_parte_central', 'maletero'])
-    Seleccionado.unir('cuerpo_robot')
+    seleccionarObjetos(['capo', 'chasis_parte_central', 'maletero'])
+    Seleccionado.unir(obj_name)
     Seleccionado.añadirMaterial(BODY_COLOR, 'BODY')
-    
+    Seleccionado.mover(obj_pos)
+
+def create_aerial(obj_pos, obj_name):
     #making the aerial:
     Objeto.crearCilindro('base_antena')
     Seleccionado.rotarZ(PI/2.0)
     Seleccionado.escalar(AERIAL_BASE_SIZE)
-    Seleccionado.mover(AERIAL_BASE_POS)
+    Seleccionado.mover((0, 0, AERIAL_BASE_HEIGHT/2))
     
     Objeto.crearCono('vara_antena')
-    Seleccionado.escalar(AERIAL_STICK_SIZE)
-    Seleccionado.mover(AERIAL_STICK_POS)
+    Seleccionado.escalar((AERIAL_STICK_RADIUS, AERIAL_STICK_RADIUS, AERIAL_STICK_HEIGHT/2))
+    Seleccionado.mover((0, 0, AERIAL_BASE_HEIGHT + AERIAL_STICK_HEIGHT/2)) #for some reason the cone creates itself with the double of the height specified, so it has to be divided by 2.
     
     Objeto.crearEsfera('bola_antena')
-    Seleccionado.escalar((0.1, 0.1, 0.1))
-    Seleccionado.mover((AERIAL_STICK_POS[0], AERIAL_STICK_POS[1], AERIAL_STICK_POS[2] + AERIAL_STICK_HEIGHT))
+    Seleccionado.escalar((AERIAL_TIP_RADIUS, AERIAL_TIP_RADIUS, AERIAL_TIP_RADIUS))
+    Seleccionado.mover((0, 0, AERIAL_BASE_HEIGHT + AERIAL_STICK_HEIGHT))
     
     #joinning the parts of the aerial together:    
     seleccionarObjetos(['base_antena', 'vara_antena', 'bola_antena'])
-    Seleccionado.unir('antena')
+    Seleccionado.unir(obj_name)
     Seleccionado.añadirMaterial(AERIAL_COLOR, 'AERIAL')
+    Seleccionado.mover(obj_pos)
     
-    #making the laser:
+    
+def create_laser(obj_pos, obj_name):
     Objeto.crearCubo('base_laser')
     Seleccionado.escalar(LASER_BASE_SIZE)
-    Seleccionado.mover(LASER_BASE_POS)
     Seleccionado.añadirMaterial(SENSOR_BASE_COLOR, 'LASER_BASE')
     
     Objeto.crearCilindro('cristal_laser')
     Seleccionado.rotarZ(PI/2.0)
     Seleccionado.escalar(LASER_GLASS_SIZE)
-    Seleccionado.mover(LASER_GLASS_POS)
+    Seleccionado.mover((0, LASER_GLASS_SHIFT_Y, 0))
     Seleccionado.añadirMaterial(LASER_GLASS_COLOR, 'LASER_GLASS')
     
     seleccionarObjetos(['base_laser', 'cristal_laser'])
-    Seleccionado.unir('sensor_laser')
-    
-    Objeto.crearCubo('base_sensor_ultrasonido_derecho')
-    Seleccionado.escalar(US_BASE_SIZE)
-    Seleccionado.mover(US_RIGHT_BASE_POS)
-    Seleccionado.añadirMaterial(SENSOR_BASE_COLOR, 'US_BASE')
-    
-    Objeto.crearCilindro('emisor_ultrasonido_derecho')
-    Seleccionado.rotarY(PI/2.0)
-    Seleccionado.escalar(US_EMITTER_RECEIVER_SIZE)
-    Seleccionado.mover(US_RIGHT_EMITTER_POS)
-    Seleccionado.añadirMaterial(US_EMITTER_COLOR, 'US_EMITTER')
-    
-    Objeto.crearCilindro('receptor_ultrasonido_derecho')
-    Seleccionado.rotarY(PI/2.0)
-    Seleccionado.escalar(US_EMITTER_RECEIVER_SIZE)
-    Seleccionado.mover(US_RIGHT_RECEIVER_POS)
-    Seleccionado.añadirMaterial(US_RECEIVER_COLOR, 'US_RECEIVER')
-    
-    seleccionarObjetos(['base_sensor_ultrasonido_derecho', 'emisor_ultrasonido_derecho', 'receptor_ultrasonido_derecho'])
-    Seleccionado.unir('sensor_ultrasonido_derecho')
-    
-    
-    Objeto.crearCubo('base_sensor_ultrasonido_izquierdo')
-    Seleccionado.escalar(US_BASE_SIZE)
-    Seleccionado.mover(US_LEFT_BASE_POS)
-    Seleccionado.añadirMaterial(SENSOR_BASE_COLOR, 'US_BASE')
-    
-    Objeto.crearCilindro('emisor_ultrasonido_izquierdo')
-    Seleccionado.rotarY(PI/2.0)
-    Seleccionado.escalar(US_EMITTER_RECEIVER_SIZE)
-    Seleccionado.mover(US_LEFT_EMITTER_POS)
-    Seleccionado.añadirMaterial(US_EMITTER_COLOR, 'US_EMITTER')
-    
-    Objeto.crearCilindro('receptor_ultrasonido_izquierdo')
-    Seleccionado.rotarY(PI/2.0)
-    Seleccionado.escalar(US_EMITTER_RECEIVER_SIZE)
-    Seleccionado.mover(US_LEFT_RECEIVER_POS)
-    Seleccionado.añadirMaterial(US_RECEIVER_COLOR, 'US_RECEIVER')
-    
-    seleccionarObjetos(['base_sensor_ultrasonido_izquierdo', 'emisor_ultrasonido_izquierdo', 'receptor_ultrasonido_izquierdo'])
-    Seleccionado.unir('sensor_ultrasonido_izquierdo')
-    
-    #TODO: make renders of the sensors and the aerial.
-    #TODO: get most lines out of main to move them into functions of very high level like makeUsSensor() or makeLaserSensor().
-    #TODO: add camera.
-    
-    
-    
+    Seleccionado.unir(obj_name)
+    Seleccionado.mover(obj_pos)
 
+def create_us_sensor(obj_pos, obj_name):
+    Objeto.crearCubo('base_sensor')
+    Seleccionado.escalar(US_BASE_SIZE)
+    Seleccionado.añadirMaterial(SENSOR_BASE_COLOR, 'US_BASE')
+    
+    Objeto.crearCilindro('emisor')
+    Seleccionado.rotarY(PI/2.0)
+    Seleccionado.escalar(US_EMITTER_RECEIVER_SIZE)
+    Seleccionado.mover((US_BASE_WIDTH/2 + US_EMITTER_RECEIVER_HEIGHT/2, US_EMITTER_RECEIVER_RADIUS + US_COMPONENT_SEPARATION/2, 0))
+    Seleccionado.añadirMaterial(US_EMITTER_COLOR, 'US_EMITTER')
+    
+    Objeto.crearCilindro('receptor')
+    Seleccionado.rotarY(PI/2.0)
+    Seleccionado.escalar(US_EMITTER_RECEIVER_SIZE)
+    Seleccionado.mover((US_BASE_WIDTH/2 + US_EMITTER_RECEIVER_HEIGHT/2, -US_EMITTER_RECEIVER_RADIUS - US_COMPONENT_SEPARATION/2, 0))
+    Seleccionado.añadirMaterial(US_RECEIVER_COLOR, 'US_RECEIVER')
+    
+    seleccionarObjetos(['base_sensor', 'emisor', 'receptor'])
+    Seleccionado.unir(obj_name)
+    bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_VOLUME', center='MEDIAN')
+    Seleccionado.mover(obj_pos)
+
+def create_camera(obj_pos, obj_name):
+    Objeto.crearCubo('base_camara')
+    Seleccionado.escalar(CAMERA_BASE_SIZE)
+    Seleccionado.mover((0, 0, CAMERA_NECK_HEIGHT/2))
+    
+    Objeto.crearCilindro('cuello_camara')
+    Seleccionado.escalar(CAMERA_NECK_SIZE)
+    Seleccionado.mover((0, 0, CAMERA_NECK_HEIGHT + CAMERA_BASE_HEIGHT/2))
+    
+    Objeto.crearCubo('cuerpo_camara')
+    Seleccionado.escalar(CAMERA_BODY_SIZE)
+    Seleccionado.mover((0, CAMERA_BODY_Y_SHIFT, CAMERA_NECK_HEIGHT + CAMERA_BASE_HEIGHT + CAMERA_BODY_HEIGHT/2))
+    
+    seleccionarObjetos(['base_camara', 'cuello_camara', 'cuerpo_camara'])
+    Seleccionado.unir('camara_sin_lente')
+    Seleccionado.añadirMaterial(SENSOR_BASE_COLOR, 'CAMERA_WITHOUT_LENS')
+    
+    Objeto.crearEsfera('lente_camara')
+    Seleccionado.escalar(CAMERA_LENS_SIZE)
+    Seleccionado.mover((0, CAMERA_BODY_Y_SHIFT + CAMERA_BODY_LENGTH/2, CAMERA_NECK_HEIGHT + CAMERA_BASE_HEIGHT + CAMERA_BODY_HEIGHT/2))
+    Seleccionado.añadirMaterial(CAMERA_LENS_COLOR, 'CAMERA_LENS')
+    
+    seleccionarObjetos(['lente_camara', 'camara_sin_lente'])
+    Seleccionado.unir(obj_name)
+    Seleccionado.mover(obj_pos)
+    
+if __name__ == "__main__":
+    #Deleting all the objects to reset the scene:
+    borrarObjetos()
+    borrarMateriales()
+    borrarLuces()
+    borrarMallas()
+    
+    #Creating the axes:
+    create_axis((0, -AXIS_SEPARATION_DISTANCE/2, 0), 'eje_y_ruedas_posteriores')
+    create_axis((0, AXIS_SEPARATION_DISTANCE/2, 0), 'eje_y_ruedas_anteriores')
+    
+    #Creating the body of the robot:
+    create_body((0, 0, 0), 'cuerpo_robot')
+    
+    #Creating the sensors and details:
+    create_aerial((-CHASSIS_WIDTH/2 + AERIAL_BASE_RADIUS + 0.1, -CHASSIS_LENGTH/2 + AERIAL_BASE_RADIUS + 0.1, CHASSIS_HEIGHT), 'antena')
+    
+    create_laser((0, CHASSIS_LENGTH/2 + LASER_BASE_LENGTH/2, CHASSIS_HEIGHT - LASER_BASE_HEIGHT/2 - 0.1), 'laser')
+    
+    create_us_sensor((CHASSIS_WIDTH/2 + US_EMITTER_RECEIVER_HEIGHT/2 + US_BASE_WIDTH/2, 0, CHASSIS_HEIGHT/2), 'us_derecha')
+    
+    create_us_sensor((-CHASSIS_WIDTH/2 - US_EMITTER_RECEIVER_HEIGHT/2 - US_BASE_WIDTH/2, 0, CHASSIS_HEIGHT/2), 'us_izquierda')
+    Seleccionado.escalar((-1, -1, 1))
+    
+    create_camera((0, CHASSIS_LENGTH/2 - CAMERA_BASE_LENGTH/2 - 0.1, CHASSIS_HEIGHT - CAMERA_BASE_HEIGHT/2), 'camara_robot')
+    
 
 
 
@@ -373,6 +434,6 @@ if __name__ == "__main__":
     bpy.ops.object.light_add(type='SUN', radius=1, location=(0.0, 0.0, 5.0))
     bpy.ops.object.light_add(type='POINT', location=(4.5, 1.5, 3.7))
     bpy.ops.object.camera_add(align='VIEW',\
-                              location=(7.0, -7.0, 5.0),\
+                              location=(10.0, -10.0, 8.5),\
                               rotation=(1.06, 0.00771012, 0.765167))
 
